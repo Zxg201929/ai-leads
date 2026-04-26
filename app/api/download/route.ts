@@ -10,35 +10,29 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
   }
 
-  // 🔥 调用你的生成API（关键）
-  const res = await fetch("http://localhost:3000/api/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      industry,
-      country,
-      full: true,
-    }),
-  });
+  // 👉 模拟真实 leads（后面可以接API）
+  const leads = [];
 
-  const data = await res.json();
-  console.log("DOWNLOAD DATA:", data);
-  const leads = data.full || [];
+  for (let i = 1; i <= 100; i++) {
+    leads.push({
+      company: `${industry} Company ${i}`,
+      website: `https://company${i}.com`,
+      email: `contact${i}@company${i}.com`,
+    });
+  }
 
-  // 👉 转CSV
-  const rows = [
-    ["Company", "Website", "Email"],
-    ...leads.map((l: any) => [l.Company, l.Website, l.Email]),
-  ];
-
-  const csv = rows.map((r) => r.join(",")).join("\n");
+  // 👉 转 CSV
+  const csv = [
+    "Company,Website,Email",
+    ...leads.map(
+      (l) => `${l.company},${l.website},${l.email}`
+    ),
+  ].join("\n");
 
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": "attachment; filename=leads.csv",
+      "Content-Disposition": `attachment; filename="${industry}-${country}-leads.csv"`,
     },
   });
 }
