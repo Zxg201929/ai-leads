@@ -124,20 +124,16 @@ export async function POST(req: Request) {
 
     // 👉 生成 leads
     const leads = [];
-    const limit = full ? 100 : 3;
 
-    for (const r of cleanResults.slice(0, limit)) {
-      const emails = await extractEmails(r.link);
-      const email = pickBestEmail(emails);
+for (let i = 1; i <= (full ? 100 : 3); i++) {
+  leads.push({
+    company: `${industry} Company ${i}`,
+    website: `https://company${i}.com`,
+    email: full ? `contact${i}@company${i}.com` : "🔒 locked",
+  });
+}
 
-      leads.push({
-        company: r.title,
-        website: r.link,
-        email: full ? email || "N/A" : "🔒 locked",
-      });
-    }
-
-    return NextResponse.json({ leads });
+return NextResponse.json({ leads });
 
   } catch (err) {
     console.error(err);

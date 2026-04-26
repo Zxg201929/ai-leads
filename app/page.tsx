@@ -9,39 +9,43 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
-    if (!industry || !country) {
-      alert("Enter industry and country");
-      return;
-    }
-
     setLoading(true);
 
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          industry,
-          country,
-          full: false,
-        }),
-      });
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        industry,
+        country,
+        full: false,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      console.log("DATA:", data);
-
-      // 👉 强制设置（避免结构问题）
-      setLeads(data.leads || []);
-
-    } catch (e) {
-      console.error(e);
-      alert("Error generating leads");
-    }
-
+    setLeads(data.leads || []);
     setLoading(false);
+  };
+
+  const handleCheckout = async () => {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        industry,
+        country,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    }
   };
 
   return (
@@ -52,44 +56,55 @@ export default function Home() {
         value={industry}
         onChange={(e) => setIndustry(e.target.value)}
         placeholder="coffee"
-        style={{ display: "block", marginBottom: 10 }}
       />
+
+      <br />
 
       <input
         value={country}
         onChange={(e) => setCountry(e.target.value)}
-        placeholder="Brazil"
-        style={{ display: "block", marginBottom: 10 }}
+        placeholder="Vietnam"
       />
 
+      <br />
+
       <button onClick={handleGenerate}>
-        {loading ? "Generating..." : "Generate Free Preview"}
+        {loading ? "Loading..." : "Generate Free Preview"}
       </button>
 
-      {/* 👉 强制显示调试 */}
-      <pre style={{ marginTop: 20 }}>
-        {JSON.stringify(leads, null, 2)}
-      </pre>
-
       {leads.length > 0 && (
-        <table border={1} style={{ marginTop: 20 }}>
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Website</th>
-              <th>Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leads.map((l, i) => (
-              <tr key={i}>
-                <td>{l.company}</td>
-                <td>{l.website}</td>
-                <td>{l.email}</td>
+        <>
+          <table border={1} style={{ marginTop: 20 }}>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Website</th>
+                <th>Email</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {leads.map((l, i) => (
+                <tr key={i}>
+                  <td>{l.company}</td>
+                  <td>{l.website}</td>
+                  <td>{l.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button
+            onClick={handleCheckout}
+            style={{
+              marginTop: 20,
+              padding: 10,
+              background: "black",
+              color: "white",
+            }}
+          >
+            Get Full Leads ($10)
+          </button>
+        </>
       )}
     </main>
   );
