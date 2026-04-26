@@ -4,10 +4,14 @@ const SERPER_API_KEY = process.env.SERPER_API_KEY!;
 
 // 👉 更宽松过滤（避免全被过滤掉）
 function isValidCompany(url: string) {
+  if (!url) return false;
+
   return (
-    url &&
     !url.includes("reddit") &&
-    !url.includes("youtube")
+    !url.includes("youtube") &&
+    !url.includes("wikipedia") &&
+    !url.includes("facebook") &&
+    !url.includes("instagram")
   );
 }
 
@@ -49,13 +53,14 @@ export async function POST(req: Request) {
 
     // 👉 更强查询（避免空）
     const queries = [
-      `${industry} company ${country}`,
-      `${industry} supplier ${country}`,
-      `${industry} manufacturer ${country}`,
-      `${industry} distributor ${country}`,
-      `${industry} business ${country}`,
-      `${industry} companies list ${country}`,
-    ];
+  `${industry} company in ${country} website`,
+  `${industry} supplier in ${country} contact`,
+  `${industry} manufacturer in ${country} email`,
+  `${industry} exporter in ${country} company`,
+  `${industry} distributor in ${country} business`,
+  `${industry} companies in ${country} contact email`,
+  `${industry} companies ${country} official website`,
+];
 
     let allResults: any[] = [];
 
@@ -69,6 +74,8 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           q,
           num: 20,
+          gl: "us",      // 🌍 强制全球结果
+  hl: "en",      // 🌍 英文结果（更商业）
         }),
       });
 
