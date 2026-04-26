@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           q,
-          num: 10,
+          num: 20,
         }),
       });
 
